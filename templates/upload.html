@@ -1,0 +1,19 @@
+{% extends "index.html" %}
+{%block content%}
+<br></br>
+<div class="container"> 
+    <h1>Upload Files Here:</h1>
+    <br></br> 
+    <form action="uploadoutput" method="post">
+    <label for="transfile">Transaction File: </label><br></br>
+    <input type="file" id="transfile" name="transfile">
+    <br></br> 
+    <br></br> 
+    <label for="plfile">P&L File: </label>
+    <br></br> 
+    <input type="file" id="plfile" name="plfile">
+    <br></br>
+    <input type ="submit">
+</form>
+</div>
+{% endblock content %}
