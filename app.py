@@ -9,7 +9,7 @@ from logging import Formatter, FileHandler
 #from forms import *
 import os
 import sys
-from module import splitter2
+from module import splitter2,test1
 #----------------------------------------------------------------------------#
 # App Config.
 #----------------------------------------------------------------------------#
@@ -57,15 +57,33 @@ def before_request():
 def about():
     return render_template('pricing.html')
 
-@app.route('/upload')
+@app.route('/upload', methods=['GET'])
 def upload():
     return render_template ('upload.html')
-@app.route('/uploadoutput')
+@app.route('/uploadoutput',methods=['POST'])
 def uploadoutput():
-    pldf=request.args.get('plfile')
-    transdf=request.args.get('transfile')
+    pldf=request.form.get('plfile')
+    transdf=request.form.get('transfile')
+    print(pldf)
+    print(transdf)
     transdf_output=splitter2(transdf,pldf).to_html()
     return render_template('uploadoutput.html',table=transdf_output)
+
+
+
+
+@app.route('/test', methods=['GET'])
+def test():
+    return render_template('test.html')
+@app.route('/testoutput',methods=['POST'])
+def testoutput():
+    test=request.form.get('testname')
+    test2=test1(test)
+    return render_template('testoutput.html',test3=test2)
+
+
+
+
 
 
 # Error handlers.
