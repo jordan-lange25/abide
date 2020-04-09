@@ -1,5 +1,6 @@
 #Engine code
-def splitter2(transdf,pldf): 
+import pandas as pd
+def splitter2(transdf,pldf):   
     accountslist=[]
     for i in pldf['Account']: 
         if i not in ("Revenue","COGS","GrossMargin","Profit"): 

@@ -2,7 +2,7 @@
 # Imports
 #----------------------------------------------------------------------------#
 
-from flask import Flask, render_template,request, session, url_for,escape, request, redirect,g
+from flask import Flask, render_template,request, session, url_for,escape, request, redirect,g,flash, request, redirect
 # from flask.ext.sqlalchemy import SQLAlchemy
 import logging
 from logging import Formatter, FileHandler
@@ -10,11 +10,15 @@ from logging import Formatter, FileHandler
 import os
 import sys
 from module import splitter2,test1
+import pandas as pd
+from werkzeug.utils import secure_filename
 #----------------------------------------------------------------------------#
 # App Config.
 #----------------------------------------------------------------------------#
-
+UPLOAD_FOLDER = '/Users/jordanlange/Documents/projects/profitanalysis/data'
+ALLOWED_EXTENSIONS = {'csv'}
 app = Flask(__name__)
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 #----------------------------------------------------------------------------#
 # Controllers.
@@ -57,18 +61,35 @@ def before_request():
 def about():
     return render_template('pricing.html')
 
+
+
+
+#----------
+#Uploads
+#----------
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
 @app.route('/upload', methods=['GET'])
 def upload():
-    return render_template ('upload.html')
+    return render_template('upload.html')
 @app.route('/uploadoutput',methods=['POST'])
 def uploadoutput():
-    pldf=request.form.get('plfile')
-    transdf=request.form.get('transfile')
-    print(pldf)
-    print(transdf)
+    #pldf1=request.form.get('plfile')
+    pldf1=pd.read_csv(request.form.get('plfile'),delimiter='\t')
+    pldf=pd.DataFrame(pldf1)
+    #transdf1=request.form.get('transfile')
+    transdf1=pd.read_csv(request.form.get('transfile'),delimiter='\t')
+    transdf=pd.DataFrame(transdf1)
     transdf_output=splitter2(transdf,pldf).to_html()
     return render_template('uploadoutput.html',table=transdf_output)
 
+@app.route('/uploadoutputtest',methods=['GET','POST'])
+def outputtest(): 
+    transdf1=request.files['transfile']
+    return transdf1.to_html()
 
 
 
