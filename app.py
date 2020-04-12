@@ -26,10 +26,10 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 #pages
 @app.route('/')
+@app.route('/home')
 def home():
     return render_template('home.html')
 
-@app.route('/', methods=['GET','POST'])
 @app.route('/login', methods=['GET','POST'])
 def index():
     if request.method=='POST':
@@ -100,7 +100,6 @@ def upload():
             filename = secure_filename(file.filename)
             filename = os.path.join(app.config['UPLOAD_FOLDER'], filename)
             file.save(filename)
-            print("THIS IS THE FILENAME"+str(filename))
             file=pd.read_csv(str(filename)).to_html()
             return redirect(url_for('testoutput'))
     return render_template('upload.html')

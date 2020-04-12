@@ -7,6 +7,137 @@
 
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    <!-- Create the overwrite css file in a separate file later
+      <link rel="stylesheet" href="/css/styles.css" type="text/css"/>
+    -->
+    <title>Abide Profit Solutions</title>
+    <!--Navigation Bar-->
+    <header>
+    <div class="container">
+      
+        <a href="home"><img src="/static/AbideLogo.png" alt="logo" class="logo"></img></a>
+        <nav>
+        <ul>
+          <li><a href="home"><button class="navbutton">Home</button></a></li>
+          <li><a href="home"><button class="navbutton">Resources</button></a></li>
+          <li><a href="upload"><button class="navbutton">Upload</button></a></li>
+          <li><a href="login"><button class="navbutton">Login</button></a></li>
+
+        </ul>
+      </nav>
+    </div>
+  </header>
+  <style> 
+  body { 
+    background-color:white;
+  }
+  header{
+    background:lightgreen;
+  }
+  header::after{
+    content:'';
+    display:table;
+    clear:both;
+  }
+  .logo{
+    float:left;
+    padding-top:10px;
+    height:100px;
+    width:95px;
+  }
+  nav { 
+    float:right
+  }
+  nav ul { 
+    margin:0;
+    padding:0;
+    list-style:none
+  }
+  nav li { 
+    display:inline-block;
+    margin-left:20px;
+    padding-top:0px;
+    position:relative;
+    width:100px;
+    text-align:center;
+    vertical-align:middle;
+    text-transform:uppercase
+  }
+  .navbutton{ 
+    background-color: Transparent;
+    border: none;
+    background-repeat:no-repeat;
+    cursor:pointer;
+    overflow: hidden;
+    outline:none;
+    height:100px;
+    text-transform:uppercase
+    
+  }
+  .navbutton:focus {
+    outline:0;
+  }
+  nav a { 
+    color:black;
+    text-decoration: none;
+    text-transform:uppercase;
+  }
+  
+  nav a:hover { 
+    color:black
+  }
+
+  nav a::before { 
+    content:'';
+    display:block;
+    height:5px;
+    background-color:#444;
+    position:absolute;
+    top: 0;
+    width:0%;
+    position:absolute;
+    transition: ease-in-out 200ms;
+  }
+  nav a:hover::before{ 
+    width:100%;
+  }
+
+  input[type=text], select {
+  width: 100%;
+  padding: 12px 20px;
+  margin: 8px 0;
+  display: inline-block;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+input[type=submit] {
+  width: 25%;
+  background-color: lightgray;
+  color: white;
+  padding: 14px 20px;
+  margin: 8px 0;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+input[type=submit]:hover {
+  background-color: lightgreen;
+}
+
+footer{ 
+  position: fixed; 
+  padding: 10px 10px 0px 10px; 
+  bottom: 0; 
+  width: 100%; 
+  /* Height of the footer*/  
+  height: 100px; 
+  background: lightgrey; 
+}
+
+  </style>
+  
   </head>
   <body>
     {% block content %}
@@ -16,5 +147,20 @@
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
-  </body>
+    <!-- <div class="continer-fluid">
+    <footer>
+    <div class="row">
+      <div class="column-sm-4" style="text-align:right;margin-top:25px">
+        <h1>A</h1>
+      </div>
+      <div class="column-sm-4" style="text-align:center;margin-top:25px">
+        <p>Copyright ©2020 Abide Industries,LLC</p>
+      </div>
+      <div class="column-sm-4" style="text-align:left;margin-top:25px">
+        <a href="home"><img src="/static/AbideLogo.png" style="height:50px" alt="logo"></a>
+      </div>
+    </div>
+    </footer>
+    </div> -->
+</body>
 </html>
