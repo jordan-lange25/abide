@@ -15,8 +15,8 @@ from werkzeug.utils import secure_filename
 #----------------------------------------------------------------------------#
 # App Config.
 #----------------------------------------------------------------------------#
-UPLOAD_FOLDER = '/Users/jordanlange/Documents/projects/profitanalysis/data'
-ALLOWED_EXTENSIONS = {'csv'}
+UPLOAD_FOLDER = '/Users/jordanlange/Documents/projects/profitanalysis/uploads1'
+ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif','csv'}
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
@@ -46,7 +46,6 @@ def getsession():
 @app.route('/logout')
 def dropsession():
     session.pop('user', None)
-    session.pop('diagnosticvisit')
     return render_template('logout.html')
 
 
@@ -62,20 +61,7 @@ def about():
     return render_template('pricing.html')
 
 
-
-
-#----------
-#Uploads
-#----------
-def allowed_file(filename):
-    return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-
-
-@app.route('/upload', methods=['GET'])
-def upload():
-    return render_template('upload.html')
-@app.route('/uploadoutput',methods=['POST'])
+@app.route('/uploadoutput',methods=['GET'])
 def uploadoutput():
     #pldf1=request.form.get('plfile')
     pldf1=pd.read_csv(request.form.get('plfile'),delimiter='\t')
@@ -86,27 +72,67 @@ def uploadoutput():
     transdf_output=splitter2(transdf,pldf).to_html()
     return render_template('uploadoutput.html',table=transdf_output)
 
-@app.route('/uploadoutputtest',methods=['GET','POST'])
-def outputtest(): 
-    transdf1=request.files['transfile']
-    return transdf1.to_html()
 
 
 
-@app.route('/test', methods=['GET'])
-def test():
-    return render_template('test.html')
-@app.route('/testoutput',methods=['POST'])
+#----------
+#Uploads
+#----------
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
+@app.route('/upload',methods=['GET','POST'])
+def upload(): 
+    if request.method == 'POST':
+         # check if the post request has the file part
+        if 'file' not in request.files:
+            flash('No file part')
+            return redirect(request.url)
+        file = request.files['file']
+        # if user does not select file, browser also
+        # submit an empty part without filename
+        if file.filename == '':
+            flash('No selected file')
+            return redirect(request.url)
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            filename = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            file.save(filename)
+            print("THIS IS THE FILENAME"+str(filename))
+            file=pd.read_csv(str(filename)).to_html()
+            return redirect(url_for('testoutput'))
+    return render_template('upload.html')
+
+
+
+
+#TEST - Create 2 pages. One that uploads the data and another that calls the request.files
+
+@app.route('/testupload',methods=['GET'])
+def testupload():
+    #file=request.files['file']
+    #fileoutput=pd.DataFrame(file).to_html()
+    return render_template('upload.html')
+
+@app.route('/testoutput',methods=['GET','POST'])
 def testoutput():
-    test=request.form.get('testname')
-    test2=test1(test)
-    return render_template('testoutput.html',test3=test2)
+    currentdir=os.curdir
+    os.chdir(app.config['UPLOAD_FOLDER'])
+    fileupload=pd.read_csv('transaction.csv')
+    print(fileupload)
+    #file=pd.DataFrame(fileupload).to_html()
+    os.chdir(currentdir)
+    return render_template('testoutput.html',file3=fileupload)
 
 
 
-
-
-
+#TEST create the dataframe and pass the values by locating the uploaded file in local
+@app.route('/upload2',methods=['GET','POST'])
+def upload2():
+    file=pd.read_csv('/Users/jordanlange/Documents/projects/profitanalysis/uploads1/transaction.csv')
+    return render_template('uploadoutput.html',file3=file)
 # Error handlers.
 @app.errorhandler(500)
 def internal_error(error):

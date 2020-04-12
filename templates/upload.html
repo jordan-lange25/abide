@@ -4,16 +4,18 @@
 <div class="container"> 
     <h1>Upload Files Here:</h1>
     <br></br> 
-    <form action="{{ url_for('uploadoutput') }}" method="post" enctype="multipart/form-data">
+    <form method="post" enctype="multipart/form-data">
+        <div class="form-group">
     <label for="transfile">Transaction File: </label><br></br>
-    <input type="file" id="transfile" name="transfile">
+    <input type="file" id="transfile" name="file">
     <br></br> 
     <br></br> 
     <label for="plfile">P&L File: </label>
     <br></br> 
-    <input type="file" id="plfile" name="plfile">
+    <input type="file" class="form-control-file" id="plfile" name="plfile">
     <br></br>
     <input type ="submit">
+        </div>
 </form>
 </div>
 {% endblock content %}
