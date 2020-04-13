@@ -100,7 +100,6 @@ def upload():
             filename = secure_filename(file.filename)
             filename = os.path.join(app.config['UPLOAD_FOLDER'], filename)
             file.save(filename)
-            file=pd.read_csv(str(filename)).to_html()
             return redirect(url_for('testoutput'))
     return render_template('upload.html')
 
@@ -119,8 +118,7 @@ def testupload():
 def testoutput():
     currentdir=os.curdir
     os.chdir(app.config['UPLOAD_FOLDER'])
-    fileupload=pd.read_csv('transaction.csv')
-    print(fileupload)
+    fileupload=pd.read_csv('transaction.csv',delimiter="\t").to_html()
     #file=pd.DataFrame(fileupload).to_html()
     os.chdir(currentdir)
     return render_template('testoutput.html',file3=fileupload)
