@@ -1,0 +1,20 @@
+{% extends "index.html" %}
+{%block content%}
+<div class="container">
+<br></br> 
+<h1 class="center">Analysis!</h1>
+<h3 class="center"> Here are your results: </h3>
+<br></br>
+<h3>Allocated Transaction Data:</h3>
+{{analysistable | safe}}
+<br></br> 
+<h3>Your Customer Profitability!</h3>
+{{customerbar | safe}}
+
+<h3>Your Product Profitability!</h3>
+
+{{productbar | safe}}
+
+
+</div>
+{% endblock content %}

@@ -1,0 +1,15 @@
+{% extends "index.html" %}
+{%block content%}
+<div class="container">
+    <br></br>
+<a href="analysis"><button class="runbutton">Run Analysis</button></a>
+<br></br> 
+<h1 class="center">Congrats!</h1>
+<h3 class="center"> You've successfully uploaded your files. Take a look and when your're ready, run the analysis. </h3>
+<br></br>
+<h3>P&L Data:</h3>
+{{pltable | safe}}
+<h3>Transaction Data:</h3>
+{{transtable | safe}}
+</div>
+{%endblock content%}
