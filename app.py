@@ -9,23 +9,25 @@ from logging import Formatter, FileHandler
 #from forms import *
 import os
 import sys
-
 import pandas as pd
 from werkzeug.utils import secure_filename
+import dash
+import dash_html_components as html
+import dash_core_components as dcc
 
-
+from module import splitter2,filetotable,groupdata,plwaterfall
 #----------------------------------------------------------------------------#
-# App Config.
+# server Config.
 #----------------------------------------------------------------------------#
 UPLOAD_FOLDER = '/Users/jordanlange/Documents/projects/profitanalysis/uploads1'
 ALLOWED_EXTENSIONS = {'csv'}
-app = Flask(__name__)
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+server = Flask(__name__)
+server.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 #----------------------------------------------------------------------------#
 # Functions.
 #----------------------------------------------------------------------------#
-from module import splitter2,filetotable,groupdata
+
 
 
 
@@ -35,15 +37,15 @@ from module import splitter2,filetotable,groupdata
 
 #pages
 
-@app.route('/')
+@server.route('/')
 def login():
     return render_template('login.html')
-@app.route('/home')
+@server.route('/home')
 def home():
     return render_template('home.html')
 
 
-@app.route('/login', methods=['GET','POST'])
+@server.route('/login', methods=['GET','POST'])
 def index():
     if request.method=='POST':
         session.pop('user',None)
@@ -51,12 +53,12 @@ def index():
             session['user']=request.form['username']
             return redirect(url_for('home'))
     return render_template('login.html')
-@app.route('/getsession')
+@server.route('/getsession')
 def getsession():
     if 'user' in session:
         return session['user']
     return 'Not Logged in!'
-@app.route('/logout')
+@server.route('/logout')
 def dropsession():
     session.pop('user', None)
     return render_template('logout.html')
@@ -71,7 +73,7 @@ def allowed_file(filename):
 
 
 #uploads the files by their form names to a pre-defined os location ("uploads1")
-@app.route('/upload',methods=['GET','POST'])
+@server.route('/upload',methods=['GET','POST'])
 def upload(): 
     if request.method == 'POST':
          # check if the post request has the file part
@@ -88,18 +90,18 @@ def upload():
         if plfile and transfile and allowed_file(plfile.filename) and allowed_file(transfile.filename):
             plfilename = secure_filename(plfile.filename)
             transfilename=secure_filename(transfile.filename)
-            plfilename = os.path.join(app.config['UPLOAD_FOLDER'], plfilename)
-            transfilename = os.path.join(app.config['UPLOAD_FOLDER'], transfilename)
+            plfilename = os.path.join(server.config['UPLOAD_FOLDER'], plfilename)
+            transfilename = os.path.join(server.config['UPLOAD_FOLDER'], transfilename)
             plfile.save(plfilename)
             transfile.save(transfilename)
             return redirect(url_for('rawoutput'))
     return render_template('upload.html')
 
 #pulls from the defined upload folder and converts to tables using predefined functions
-@app.route('/rawoutput',methods=['GET','POST'])
+@server.route('/rawoutput',methods=['GET','POST'])
 def rawoutput():
     currentdir=os.curdir
-    os.chdir(app.config['UPLOAD_FOLDER'])
+    os.chdir(server.config['UPLOAD_FOLDER'])
     transfig=filetotable('transaction.csv')
     plfig=filetotable('pl.csv')
     os.chdir(currentdir)
@@ -107,32 +109,60 @@ def rawoutput():
 
 
 
-@app.route('/analysis',methods=['GET'])
+@server.route('/analysis',methods=['GET'])
 def analysis():
     #change directory to upload folder
     currentdir=os.curdir
-    os.chdir(app.config['UPLOAD_FOLDER'])
+    os.chdir(server.config['UPLOAD_FOLDER'])
     analysistable=splitter2('transaction.csv','pl.csv')
-    analysistable.to_csv(os.path.join(app.config['UPLOAD_FOLDER'],r'allocation.csv'))
+    analysistable.to_csv(os.path.join(server.config['UPLOAD_FOLDER'],r'allocation.csv'))
     fig=filetotable('allocation.csv').to_html()
     productfig=groupdata('allocation.csv','PartName','Profit').to_html()
     customerfig=groupdata('allocation.csv','CustomerName','Profit').to_html()
+    plwaterfall1=plwaterfall('pl.csv').to_html()
+    #Stacked bar figure showing where the biggest chunks are
     os.chdir(currentdir)
-    return render_template('analysis.html',analysistable=fig,productbar=productfig,customerbar=customerfig)
+    return render_template('analysis.html',analysistable=fig,plwaterfall=plwaterfall1,productbar=productfig,customerbar=customerfig)
+
+#Dash App allows users to explore the data themselves. 
+
+@server.route('/explore')
+def explore():
+    return redirect('/explore/')
+df=pd.read_csv('/Users/jordanlange/Documents/projects/profitanalysis/uploads1/pl.csv')
+app = dash.Dash(
+__name__,
+server=server,
+routes_pathname_prefix='/explore/'
+) 
+app.layout = html.Div([
+
+    html.H3("Explore Your Transaction Data"),
+    dcc.Graph(id='transaction-graph',
+    figure={
+        'data':[
+            {'x':df['Account'],'y':df['Amount'],'type':'bar','name':'pl'}
+            ],
+        'layout':{
+            'title':'Basic Dash Example'
+            }
+        })
+])
+   
 
 
 # Error handlers.
-@app.errorhandler(500)
+@server.errorhandler(500)
 def internal_error(error):
     #db_session.rollback()
     return render_template('errors/500.html'), 500
 
 
-@app.errorhandler(404)
+@server.errorhandler(404)
 def not_found_error(error):
     return render_template('404.html'), 404
 
-if not app.debug:
+if not server.debug:
     file_handler = FileHandler('error.log')
     file_handler.setFormatter(
         Formatter('%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]')
@@ -148,4 +178,4 @@ if not app.debug:
 
 # Default port:
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run_server(host='0.0.0.0', port=5000, debug=True)

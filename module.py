@@ -19,7 +19,7 @@ def splitter2(transfile,plfile):
         totallist=[]
         totalrev=transdf['Revenue'].sum()
         for revval in transdf["Revenue"]:
-            valuelist.append(pldf[pldf['Account']==str(account)]["Amount"].values[0]*(revval/totalrev))
+            valuelist.append(round(pldf[pldf['Account']==str(account)]["Amount"].values[0]*(revval/totalrev),2))
             totallist.append(pldf[pldf['Account']==str(account)]["Amount"].values[0])
         transdf[str(account)+"AC"]=valuelist
     transdf["Profit"]=transdf['GrossMargin']-transdf.iloc[:,-len(accountslist):].sum(axis=1)
@@ -40,7 +40,7 @@ def filetotable(file):
     ])
     return fig
 
-
+#Group the data and display in a bar chart
 def groupdata(file,group,sumfield): 
     upload=pd.read_csv(file,delimiter=',')
     df=pd.DataFrame(upload)
@@ -62,4 +62,41 @@ def groupdata(file,group,sumfield):
         barmode='group'
 
     )
+    return fig
+
+#Show the P&L in a waterfall
+#functionalize
+#Show the P&L in a waterfall
+#functionalize
+def plwaterfall(plfile):
+    pl_df=pd.read_csv(plfile,delimiter=',')
+    measurelist=[]
+    amountlist=[]
+    allaccountslist=list(pl_df['Account'])
+    allaccountslist
+    for i in allaccountslist: 
+        if i in ("GrossMargin","Profit"):
+            measurelist.append('total')
+            amountlist.append(pl_df[pl_df['Account']==i]['Amount'].values[0])
+        elif i in ("Revenue"):
+            measurelist.append('relative')
+            amountlist.append(pl_df[pl_df['Account']==i]['Amount'].values[0])
+        else: 
+            measurelist.append('relative')
+            amountlist.append(-pl_df[pl_df['Account']==i]['Amount'].values[0])
+    fig = go.Figure(go.Waterfall(
+        name = "20", orientation = "v",
+        measure = measurelist,
+        x=allaccountslist,
+        #textposition = "outside",
+        #text = ["+60", "+80", "", "-40", "-20", "Total"],
+        y = amountlist,
+        connector = {"line":{"color":"rgb(63, 63, 63)"}},
+    ))
+
+    fig.update_layout(
+            title = "Profit and loss statement 2019",
+            showlegend = True
+    )
+
     return fig
