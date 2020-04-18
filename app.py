@@ -14,6 +14,10 @@ from werkzeug.utils import secure_filename
 import dash
 import dash_html_components as html
 import dash_core_components as dcc
+import plotly.graph_objects as go
+#----------------------------------------------------------------------------#
+# Functions.
+#----------------------------------------------------------------------------#
 
 from module import splitter2,filetotable,groupdata,plwaterfall
 #----------------------------------------------------------------------------#
@@ -23,13 +27,7 @@ UPLOAD_FOLDER = '/Users/jordanlange/Documents/projects/profitanalysis/uploads1'
 ALLOWED_EXTENSIONS = {'csv'}
 server = Flask(__name__)
 server.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-
-#----------------------------------------------------------------------------#
-# Functions.
-#----------------------------------------------------------------------------#
-
-
-
+app = dash.Dash(__name__,server=server,routes_pathname_prefix='/explore/') 
 
 #----------------------------------------------------------------------------#
 # Controllers.
@@ -123,32 +121,82 @@ def analysis():
     #Stacked bar figure showing where the biggest chunks are
     os.chdir(currentdir)
     return render_template('analysis.html',analysistable=fig,plwaterfall=plwaterfall1,productbar=productfig,customerbar=customerfig)
-
-#Dash App allows users to explore the data themselves. 
-
+#------------
+#Dash App 1 - Explore
+#------------
 @server.route('/explore')
 def explore():
     return redirect('/explore/')
-df=pd.read_csv('/Users/jordanlange/Documents/projects/profitanalysis/uploads1/pl.csv')
-app = dash.Dash(
-__name__,
-server=server,
-routes_pathname_prefix='/explore/'
-) 
-app.layout = html.Div([
+df=pd.read_csv('/Users/jordanlange/Documents/projects/profitanalysis/uploads1/allocation.csv',delimiter=',')
+#df2=pd.DataFrame(df.groupby(str(group))[str(sumfield)].sum().reset_index().sort_values(str(sumfield),ascending=False))
+app.layout = html.Div(children=[
+   #dropdown for group values
+    html.H3("Explore Your Transaction Data",style={'text-align':'center'}),
+    dcc.Dropdown(
+        id='groupinput',
+        options=[{'label':k,'value':k} for k in list(df.columns)],
+        # options=[
+        #         {'label': 'Customer','value': 'CustomerName'},
+        #         {'label': 'Product','value': 'PartName'}
+        # ],
+        value='PartName',
+        
+        placeholder="Select something to group by.",
+        style={'float': 'left','width':'300px','hspace':'100px','vspace': '100px','margin-left':'200px','margin-right':'200px'}) ,
+    #dropdown for sum values
+    dcc.Dropdown(
+        id='suminput',
+        options=[{'label':k,'value':k} for k in list(df.columns)], 
+        # options=[
+        #         {'label': 'Profit','value': 'Profit'},
+        #         {'label': 'G&AAC','value': 'G&AAC'},
+        #         {'label': 'DistributionAC','value': 'DistributionAC'},
+        #         {'label': 'SellingRelatedAC','value': 'SellingRelatedAC'}
+        # ],
+        value='Profit',
+       
+       style={'float': 'right','width':'300px','hspace':'100px','vspace': '100px','margin-left':'200px','margin-right':'200px'}),
+    html.Br(),
+    html.Br(),
+    html.Br(),
+    html.Br(),
+    html.Br(),
+    html.Br(),
+    #html.Div(id='dd-output-container')])
+    dcc.Graph(id='transaction-graph')])
+    
+@app.callback(
+    dash.dependencies.Output('transaction-graph','figure'),
+    [dash.dependencies.Input('groupinput','value'),
+    dash.dependencies.Input('suminput','value')
+    ])
+#format like Graph() requires
+def returnfig(groupinput,suminput):
+   # return 'You have selected Group:"{}" and Sum:"{}"'.format(groupinput,suminput)
+    df2=pd.DataFrame(df.groupby(str(groupinput))[str(suminput)].sum().reset_index().sort_values(str(suminput),ascending=False))
+    #create visualization
+    fig = go.Figure(data=[go.Bar(name=str(groupinput) + ' Profitability', x=df2[str(groupinput)], y=df2[str(suminput)], marker={'color':'rgb(144, 238, 144)'}),
+    ])
+    # Change the bar mode
+    fig.update_layout(
+        title=str(groupinput) + 'Profitability',
+        xaxis=dict(
+            title= str(groupinput),
+            tickfont_size=14
+        ),
+        yaxis=dict(
+        title='USD'+str(suminput)
+        ),
+        barmode='group'
 
-    html.H3("Explore Your Transaction Data"),
-    dcc.Graph(id='transaction-graph',
-    figure={
-        'data':[
-            {'x':df['Account'],'y':df['Amount'],'type':'bar','name':'pl'}
-            ],
-        'layout':{
-            'title':'Basic Dash Example'
-            }
-        })
-])
-   
+    )
+
+    # fig2=dcc.graph(
+    # id='transaction-graph',
+    # figure=fig
+    # )  
+    return fig
+
 
 
 # Error handlers.

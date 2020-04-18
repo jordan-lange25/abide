@@ -3,6 +3,11 @@
 <div class="container">
 <br></br> 
 <h1 class="center">Analysis!</h1>
+<a href="{{ url_for('/explore/') }}" class="center">
+    <button class='runbutton center'>   
+        Explore for Yourself!
+    </button>
+    </a>
 <h3 class="center"> Here are your results: </h3>
 <br></br>
 <h1>Your Profit and Loss</h1>
@@ -19,5 +24,7 @@
 {{productbar | safe}}
 
 
+
 </div>
+
 {% endblock content %}
