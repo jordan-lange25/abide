@@ -23,7 +23,7 @@ from module import splitter2,filetotable,groupdata,plwaterfall
 #----------------------------------------------------------------------------#
 # server Config.
 #----------------------------------------------------------------------------#
-UPLOAD_FOLDER = '/Users/jordanlange/Documents/projects/profitanalysis/uploads1'
+UPLOAD_FOLDER = '/Users/jordanlange/Documents/projects/abide/uploads1'
 ALLOWED_EXTENSIONS = {'csv'}
 server = Flask(__name__)
 server.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -127,7 +127,7 @@ def analysis():
 @server.route('/explore')
 def explore():
     return redirect('/explore/')
-df=pd.read_csv('/Users/jordanlange/Documents/projects/profitanalysis/uploads1/allocation.csv',delimiter=',')
+df=pd.read_csv('/Users/jordanlange/Documents/projects/abide/uploads1/allocation.csv',delimiter=',')
 #df2=pd.DataFrame(df.groupby(str(group))[str(sumfield)].sum().reset_index().sort_values(str(sumfield),ascending=False))
 app.layout = html.Div(children=[
    #dropdown for group values
